@@ -3,7 +3,7 @@ import {RecursiveCharacterTextSplitter} from "langchain/text_splitter";
 
 export async function parseContract(filePath) {
     const fileContent = fs.readFileSync(filePath, "utf-8");
-    const splitter = new RecursiveCharacterTextSplitter.fromLanguage("sol", {
+    const splitter = RecursiveCharacterTextSplitter.fromLanguage("sol", {
         chunkSize: 800,
         chunkOverlap: 100,
     });

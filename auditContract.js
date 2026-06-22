@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { PineconeStore } from "@langchain/pinecone";
 import { Pinecone } from "@pinecone-database/pinecone";
@@ -37,12 +38,18 @@ export async function findVulnerabilityMatches(codeChunks) {
       });
     }
   }
+  console.log("\n--- ALL matches (unfiltered) ---");
+allMatches.forEach((m) => {
+  console.log(`${m.patternMetadata.title}: ${m.similarityScore.toFixed(2)}`);
+  console.log(m.codeChunk.substring(0, 80));
+  console.log("---");
+});
 
   return allMatches;
 }
 
 
 //filter the matches based on a similarity score threshold to only include significant matches
-export function filterSignificantMatches(matches, threshold = 0.75) {
+export function filterSignificantMatches(matches, threshold = 0.68) {
   return matches.filter((match) => match.similarityScore >= threshold);
 }
