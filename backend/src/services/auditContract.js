@@ -38,12 +38,6 @@ export async function findVulnerabilityMatches(codeChunks) {
       });
     }
   }
-  console.log("\n--- ALL matches (unfiltered) ---");
-allMatches.forEach((m) => {
-  console.log(`${m.patternMetadata.title}: ${m.similarityScore.toFixed(2)}`);
-  console.log(m.codeChunk.substring(0, 80));
-  console.log("---");
-});
 
   return allMatches;
 }

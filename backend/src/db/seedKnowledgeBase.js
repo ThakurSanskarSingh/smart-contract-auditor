@@ -2,7 +2,7 @@ import "dotenv/config";
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { PineconeStore } from "@langchain/pinecone";
 import { Pinecone } from "@pinecone-database/pinecone";
-import { formatPatternsForEmbedding } from "./knowledgeBase.js";
+import { formatPatternsForEmbedding } from "../../knowledgeBase.js";
 
 // this script seeds the Pinecone index with the vulnerability patterns for later retrieval and use in the RAG chatbot. 
 // performs the following steps:

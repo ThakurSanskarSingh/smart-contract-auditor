@@ -1,13 +1,10 @@
-import { parseContract } from "./parseContract.js";
-import { findVulnerabilityMatches, filterSignificantMatches } from "./auditContract.js";
+import { parseContract } from "./backend/src/services/parseContract.js";
+import { findVulnerabilityMatches, filterSignificantMatches } from "./backend/src/services/auditContract.js";
+import { generateAuditReport } from "./backend/src/services/generateReport.js";
 
-const { chunks } = await parseContract("./sample-contract.sol");
+const {fileContent, chunks } = await parseContract("./sample-contract.sol");
 const allMatches = await findVulnerabilityMatches(chunks);
 const significantMatches = filterSignificantMatches(allMatches);
 
-console.log(`Total matches: ${allMatches.length}`);
-console.log(`Significant matches: ${significantMatches.length}`);
-significantMatches.forEach((m) => {
-  console.log(`\n--- Match: ${m.patternMetadata.title} (score: ${m.similarityScore.toFixed(2)}) ---`);
-  console.log(m.codeChunk.substring(0, 100));
-});
+const report = await generateAuditReport(significantMatches, fileContent);
+console.log("Audit Report:", JSON.stringify(report, null, 2));
