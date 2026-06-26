@@ -45,6 +45,22 @@ Respond ONLY with valid JSON in this exact format, no other text:
     response_format: { type: "json_object" },
   });
 
-  const report = JSON.parse(response.choices[0].message.content);
-  return report;
+  const rawContent = response.choices[0]?.message?.content ?? "";
+
+  try {
+    return JSON.parse(rawContent);
+  } catch (err) {
+    console.error("Failed to parse LLM audit report as JSON:", err.message);
+    console.error("Raw model output:", rawContent);
+
+    // Graceful fallback so the API still returns a usable, well-formed report
+    // instead of crashing the request when the model emits malformed JSON.
+    return {
+      findings: [],
+      overallRiskLevel: "Unknown",
+      summary:
+        "The audit model returned a response that could not be parsed. Please retry the audit.",
+      parseError: true,
+    };
+  }
 }

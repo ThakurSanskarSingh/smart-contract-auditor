@@ -1,2 +1,7 @@
 .env
 node_modules
+CLAUDE.local.md
+
+# Uploaded contracts (runtime artifacts) — keep the dir, ignore contents
+backend/uploads/*
+!backend/uploads/.gitkeep
