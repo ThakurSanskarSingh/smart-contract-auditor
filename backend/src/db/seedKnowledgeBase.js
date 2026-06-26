@@ -1,4 +1,4 @@
-import "dotenv/config";
+import "../../config/env.js";
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { PineconeStore } from "@langchain/pinecone";
 import { Pinecone } from "@pinecone-database/pinecone";
@@ -29,10 +29,16 @@ async function seedKnowledgeBase() {
     metadata: pattern.metadata,
   }));
 
-  await PineconeStore.fromDocuments(documents, embeddings, {
+  // Deterministic IDs (the pattern id) make re-seeding idempotent: a second run
+  // upserts the same vectors instead of inserting duplicates with random IDs.
+  const ids = formattedPatterns.map((pattern) => pattern.metadata.id);
+
+  const store = await PineconeStore.fromExistingIndex(embeddings, {
     pineconeIndex,
     namespace: KNOWLEDGE_BASE_NAMESPACE,
   });
+
+  await store.addDocuments(documents, { ids });
 
   console.log(
     `Seeded ${documents.length} vulnerability patterns into Pinecone index "${process.env.PINECONE_INDEX_NAME}" under namespace "${KNOWLEDGE_BASE_NAMESPACE}".`

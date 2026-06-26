@@ -1,4 +1,4 @@
-import "dotenv/config";
+import "../../config/env.js";
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { PineconeStore } from "@langchain/pinecone";
 import { Pinecone } from "@pinecone-database/pinecone";
@@ -43,7 +43,22 @@ export async function findVulnerabilityMatches(codeChunks) {
 }
 
 
-//filter the matches based on a similarity score threshold to only include significant matches
+// Filter matches by similarity threshold, then deduplicate by vulnerability
+// pattern. The same pattern often matches several code chunks (and each chunk
+// returns its top-2), which previously sent duplicate patterns to the LLM and
+// produced redundant "(Duplicate)" findings. We keep only the highest-scoring
+// match per pattern id.
 export function filterSignificantMatches(matches, threshold = 0.68) {
-  return matches.filter((match) => match.similarityScore >= threshold);
+  const significant = matches.filter((match) => match.similarityScore >= threshold);
+
+  const bestByPattern = new Map();
+  for (const match of significant) {
+    const key = match.patternMetadata?.id ?? match.patternMetadata?.title;
+    const existing = bestByPattern.get(key);
+    if (!existing || match.similarityScore > existing.similarityScore) {
+      bestByPattern.set(key, match);
+    }
+  }
+
+  return [...bestByPattern.values()];
 }
